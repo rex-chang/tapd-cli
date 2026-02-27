@@ -92,8 +92,8 @@ func (p *Provider) Chat(ctx context.Context, messages []ai.Message) (string, err
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("Claude API 错误 (HTTP %d): %s", resp.StatusCode, string(body))
+		errBody, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("Claude API 错误 (HTTP %d): %s", resp.StatusCode, string(errBody))
 	}
 
 	var result struct {
@@ -114,7 +114,8 @@ func (p *Provider) Chat(ctx context.Context, messages []ai.Message) (string, err
 	return "", fmt.Errorf("响应中未找到文本内容")
 }
 
-// Stream 流式调用（当前为非流式兼容包装，后续可扩展为 SSE）
+// Stream 流式调用（当前为非流式兼容包装，后续可扩展为 SSE）。
+// 当 Chat 调用失败时，channel 中会发送一个 Done=true && Err!=nil 的 chunk，然后关闭。
 func (p *Provider) Stream(ctx context.Context, messages []ai.Message) (<-chan ai.StreamChunk, error) {
 	ch := make(chan ai.StreamChunk, 1)
 	go func() {
