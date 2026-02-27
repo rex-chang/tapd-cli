@@ -73,15 +73,24 @@ func promptConfig(configDir, configPath string) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("TAPD API User: ")
-	apiUser, _ := reader.ReadString('\n')
+	apiUser, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("读取 API User 失败: %w", err)
+	}
 	apiUser = strings.TrimSpace(apiUser)
 
 	fmt.Print("TAPD API Token (推荐) 或 Password: ")
-	tokenOrPwd, _ := reader.ReadString('\n')
+	tokenOrPwd, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("读取 API Token/Password 失败: %w", err)
+	}
 	tokenOrPwd = strings.TrimSpace(tokenOrPwd)
 
 	fmt.Print("TAPD Workspace ID: ")
-	workspaceID, _ := reader.ReadString('\n')
+	workspaceID, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("读取 Workspace ID 失败: %w", err)
+	}
 	workspaceID = strings.TrimSpace(workspaceID)
 
 	if apiUser == "" || tokenOrPwd == "" || workspaceID == "" {
@@ -96,15 +105,15 @@ func promptConfig(configDir, configPath string) error {
 
 	data, err := yaml.Marshal(&cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("序列化配置失败: %w", err)
 	}
 
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		return err
+	if err := os.MkdirAll(configDir, 0700); err != nil {
+		return fmt.Errorf("创建配置目录失败: %w", err)
 	}
 
 	if err := os.WriteFile(configPath, data, 0600); err != nil {
-		return err
+		return fmt.Errorf("写入配置文件失败: %w", err)
 	}
 
 	fmt.Printf("\n配置已成功保存至 %s\n\n", configPath)
