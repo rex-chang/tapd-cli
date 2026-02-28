@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /Users/rexchang/learn/tapd-cli/internal/**/*.go)",
+      "Bash(go test ./internal/config/... -v -run TestLoadConfig)",
+      "Bash(go test ./internal/config/... -v)",
+      "Bash(go build ./...)",
+      "Bash(/Users/rexchang/learn/tapd-cli/internal/ai/provider.go:*)",
+      "Bash(/Users/rexchang/learn/tapd-cli/internal/ai/provider_test.go:*)",
+      "Bash(go test /Users/rexchang/learn/tapd-cli/internal/ai/... -v)",
+      "Bash(go build /Users/rexchang/learn/tapd-cli/...)",
+      "Bash(git -C /Users/rexchang/learn/tapd-cli add internal/ai/provider.go internal/ai/provider_test.go)",
+      "Bash(git -C:*)",
+      "Bash(go test ./internal/ai/... -v)",
+      "Bash(go test ./internal/ai/claude/... -v)",
+      "Bash(/Users/rexchang/learn/tapd-cli/internal/ai/claude/claude_test.go:*)",
+      "Bash(git add internal/ai/claude/claude.go internal/ai/claude/claude_test.go)",
+      "Bash(git commit:*)",
+      "Bash(go test ./internal/tui/... -v -run TestChatModel)",
+      "Bash(go test ./... -v)",
+      "Bash(go build -o bin/tapd-cli ./cmd/tapd-cli)",
+      "Bash(/Users/rexchang/learn/tapd-cli/docs/architecture.md:*)"
+    ]
+  }
+}
