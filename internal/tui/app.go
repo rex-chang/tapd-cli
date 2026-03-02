@@ -212,8 +212,8 @@ func (m Model) View() string {
 		return "再见！\n"
 	}
 
-	header := infoStyle.Render(fmt.Sprintf("用户: %s | Workspace: %s | Tab 切换焦点",
-		m.config.APIUser, m.config.WorkspaceID))
+	header := infoStyle.Render(fmt.Sprintf("Workspace: %s | Tab 切换焦点",
+		m.config.WorkspaceID))
 
 	var dataContent string
 	if m.err != nil {

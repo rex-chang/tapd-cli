@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__web-reader__webReader",
+      "mcp__web-search-prime__webSearchPrime",
+      "Bash(cd /Users/rexchang/learn/tapd-cli && go test ./internal/config/... -v)",
+      "Bash(cd /Users/rexchang/learn/tapd-cli && go build -o bin/tapd-cli ./cmd/tapd-cli)",
+      "Bash(go test ./... -v)",
+      "Bash(git reset HEAD tmp-test-auth.go && git add -A && git status)"
+    ]
+  }
+}

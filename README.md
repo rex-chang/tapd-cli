@@ -32,20 +32,27 @@
 - **TUI 组件**：[Bubbles](https://github.com/charmbracelet/bubbles)
 - **样式渲染**：[Lip Gloss](https://github.com/charmbracelet/lipgloss)
 
-## 配置示例
+## 配置
 
 在 `~/.tapd-cli/config.yaml` 中准备如下配置：
 
 ```yaml
-api_user: your_tapd_user
-api_token: your_tapd_token
-workspace_id: "your_workspace_id"
+access_token: your_personal_access_token  # TAPD 个人访问令牌
+workspace_id: "your_workspace_id"         # TAPD 项目 ID
 
+# 可选：AI 助手配置
 ai:
   provider: claude
   api_key: sk-ant-xxxxx
   model: claude-3-5-sonnet-20241022
 ```
+
+### 获取个人访问令牌
+
+1. 登录 TAPD
+2. 进入「我的设置」→「个人访问令牌」
+3. 点击「创建个人访问令牌」
+4. 复制生成的令牌（**注意：令牌只显示一次**）
 
 ## 编译运行
 
@@ -59,3 +66,24 @@ go build -o bin/tapd-cli ./cmd/tapd-cli
 # 运行程序
 ./bin/tapd-cli
 ```
+
+## 从旧版本迁移
+
+如果你之前使用 `api_user` + `api_password` 或 `api_token` 配置：
+
+1. 访问 TAPD → 我的设置 → 个人访问令牌
+2. 创建新的个人访问令牌
+3. 更新 `~/.tapd-cli/config.yaml`：
+
+```yaml
+# 旧配置（已废弃）
+# api_user: "your_api_user"
+# api_password: "your_api_password"
+# api_token: "your_token"
+
+# 新配置
+access_token: "your_personal_access_token"
+workspace_id: "your_workspace_id"
+```
+
+**注意**：这是一个破坏性变更，旧配置文件将失效。

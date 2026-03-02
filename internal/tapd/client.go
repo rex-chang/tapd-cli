@@ -59,12 +59,8 @@ func (c *Client) DoGet(path string, query map[string]string) ([]byte, error) {
 	}
 	req.URL.RawQuery = q.Encode()
 
-	// 使用 Basic Auth，优先尝试 API Token
-	authPassword := c.cfg.APIToken
-	if authPassword == "" {
-		authPassword = c.cfg.APIPassword
-	}
-	req.SetBasicAuth(c.cfg.APIUser, authPassword)
+	// 使用 Bearer Token 认证
+	req.Header.Set("Authorization", "Bearer "+c.cfg.AccessToken)
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.httpClient.Do(req)

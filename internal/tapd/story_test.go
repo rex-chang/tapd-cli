@@ -53,8 +53,7 @@ func TestClient_GetStories(t *testing.T) {
 
 	cfg := &config.Config{
 		WorkspaceID: "test_ws",
-		APIUser:     "user",
-		APIToken:    "token",
+		AccessToken: "token",
 	}
 
 	client := tapd.NewClient(cfg, tapd.WithBaseURL(ts.URL))
@@ -86,8 +85,7 @@ func TestClient_GetStories_Failed(t *testing.T) {
 
 	cfg := &config.Config{
 		WorkspaceID: "test_ws",
-		APIUser:     "user",
-		APIToken:    "token",
+		AccessToken: "token",
 	}
 
 	client := tapd.NewClient(cfg, tapd.WithBaseURL(ts.URL))

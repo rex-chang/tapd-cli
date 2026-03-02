@@ -19,9 +19,7 @@ type AIConfig struct {
 
 // Config 存储了 TAPD 相关的凭据和基础配置
 type Config struct {
-	APIUser     string   `yaml:"api_user"`
-	APIPassword string   `yaml:"api_password"` // 可选，与 api_token 二选一
-	APIToken    string   `yaml:"api_token"`    // 推荐的登录凭证
+	AccessToken string   `yaml:"access_token"` // 个人访问令牌
 	WorkspaceID string   `yaml:"workspace_id"`
 	AI          AIConfig `yaml:"ai"`
 }
@@ -38,11 +36,8 @@ func LoadConfigFromPath(path string) (*Config, error) {
 		return nil, fmt.Errorf("解析配置文件失败: %w", err)
 	}
 
-	if cfg.APIUser == "" || cfg.WorkspaceID == "" {
-		return nil, fmt.Errorf("配置文件中必需包含 api_user 和 workspace_id")
-	}
-	if cfg.APIPassword == "" && cfg.APIToken == "" {
-		return nil, fmt.Errorf("配置文件中必需提供 api_password 或 api_token 之一进行身份验证")
+	if cfg.AccessToken == "" || cfg.WorkspaceID == "" {
+		return nil, fmt.Errorf("配置文件中必需包含 access_token 和 workspace_id")
 	}
 
 	return &cfg, nil
@@ -72,19 +67,12 @@ func promptConfig(configDir, configPath string) error {
 	fmt.Println("未找到配置文件，开始初始化 TAPD CLI 配置...")
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("TAPD API User: ")
-	apiUser, err := reader.ReadString('\n')
+	fmt.Print("TAPD Access Token: ")
+	accessToken, err := reader.ReadString('\n')
 	if err != nil {
-		return fmt.Errorf("读取 API User 失败: %w", err)
+		return fmt.Errorf("读取 Access Token 失败: %w", err)
 	}
-	apiUser = strings.TrimSpace(apiUser)
-
-	fmt.Print("TAPD API Token (推荐) 或 Password: ")
-	tokenOrPwd, err := reader.ReadString('\n')
-	if err != nil {
-		return fmt.Errorf("读取 API Token/Password 失败: %w", err)
-	}
-	tokenOrPwd = strings.TrimSpace(tokenOrPwd)
+	accessToken = strings.TrimSpace(accessToken)
 
 	fmt.Print("TAPD Workspace ID: ")
 	workspaceID, err := reader.ReadString('\n')
@@ -93,13 +81,12 @@ func promptConfig(configDir, configPath string) error {
 	}
 	workspaceID = strings.TrimSpace(workspaceID)
 
-	if apiUser == "" || tokenOrPwd == "" || workspaceID == "" {
+	if accessToken == "" || workspaceID == "" {
 		return fmt.Errorf("必需字段不可为空")
 	}
 
 	cfg := Config{
-		APIUser:     apiUser,
-		APIToken:    tokenOrPwd,
+		AccessToken: accessToken,
 		WorkspaceID: workspaceID,
 	}
 
