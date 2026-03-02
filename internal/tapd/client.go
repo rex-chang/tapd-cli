@@ -9,24 +9,40 @@ import (
 	"github.com/rex-chang/tapd-cli/internal/config"
 )
 
-const BaseURL = "https://api.tapd.cn"
+const DefaultBaseURL = "https://api.tapd.cn"
 
 type Client struct {
 	cfg        *config.Config
 	httpClient *http.Client
+	baseURL    string
 }
 
-func NewClient(cfg *config.Config) *Client {
-	return &Client{
+// ClientOption 定义客户端配置选项
+type ClientOption func(*Client)
+
+// WithBaseURL 用于在测试中覆盖默认的 API 基础 URL
+func WithBaseURL(url string) ClientOption {
+	return func(c *Client) {
+		c.baseURL = url
+	}
+}
+
+func NewClient(cfg *config.Config, opts ...ClientOption) *Client {
+	c := &Client{
 		cfg: cfg,
 		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
+		baseURL: DefaultBaseURL,
 	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
 
 func (c *Client) DoGet(path string, query map[string]string) ([]byte, error) {
-	reqURL := BaseURL + path
+	reqURL := c.baseURL + path
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
 		return nil, err

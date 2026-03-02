@@ -22,7 +22,7 @@ var (
 )
 
 type item struct {
-	title, desc string
+	title, desc, fullDesc string
 }
 
 func (i item) Title() string       { return i.title }
@@ -45,8 +45,8 @@ const (
 	focusChat                  // 焦点在下方对话区
 )
 
-// workspacesLoadedMsg TAPD 项目加载完成消息
-type workspacesLoadedMsg []tapd.WorkspaceProject
+// storiesLoadedMsg TAPD 需求加载完成消息
+type storiesLoadedMsg []tapd.StoryItem
 
 // errMsg 错误消息
 type errMsg struct{ err error }
@@ -80,7 +80,7 @@ func InitialModel(cfg *config.Config, provider ai.Provider) Model {
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 
 	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "我的 TAPD 项目"
+	l.Title = "TAPD 需求列表"
 	l.SetShowTitle(true)
 
 	client := tapd.NewClient(cfg)
@@ -98,14 +98,14 @@ func InitialModel(cfg *config.Config, provider ai.Provider) Model {
 	}
 }
 
-// fetchWorkspaces 在后台异步拉取 TAPD 项目列表
-func fetchWorkspaces(client *tapd.Client) tea.Cmd {
+// fetchStories 在后台异步拉取 TAPD 需求列表
+func fetchStories(client *tapd.Client) tea.Cmd {
 	return func() tea.Msg {
-		projects, err := client.GetWorkspaces()
+		stories, err := client.GetStories()
 		if err != nil {
 			return errMsg{err: err}
 		}
-		return workspacesLoadedMsg(projects)
+		return storiesLoadedMsg(stories)
 	}
 }
 
@@ -118,7 +118,7 @@ func callAICmd(p ai.Provider, messages []ai.Message) tea.Cmd {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(m.spinner.Tick, fetchWorkspaces(m.client))
+	return tea.Batch(m.spinner.Tick, fetchStories(m.client))
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -129,12 +129,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = stateList
 		return m, nil
 
-	case workspacesLoadedMsg:
+	case storiesLoadedMsg:
 		var items []list.Item
-		for _, p := range msg {
+		for _, s := range msg {
 			items = append(items, item{
-				title: p.Workspace.Name,
-				desc:  fmt.Sprintf("ID: %s | %s", p.Workspace.ID, p.Workspace.Desc),
+				title:    s.Story.Name,
+				desc:     fmt.Sprintf("[%s] 创建人: %s | ID: %s", s.Story.Status, s.Story.Creator, s.Story.ID),
+				fullDesc: s.Story.Description,
 			})
 		}
 		cmd := m.list.SetItems(items)
@@ -218,7 +219,7 @@ func (m Model) View() string {
 	if m.err != nil {
 		dataContent = errStyle.Render(fmt.Sprintf("加载失败: %v", m.err))
 	} else if m.state == stateLoading {
-		dataContent = fmt.Sprintf("\n\n   %s 正在加载 TAPD 项目...", m.spinner.View())
+		dataContent = fmt.Sprintf("\n\n   %s 正在加载 TAPD 需求...", m.spinner.View())
 	} else {
 		dataContent = m.list.View()
 	}
@@ -241,8 +242,8 @@ func (m Model) buildContextMessages(userMsg string) []ai.Message {
 		if selected := m.list.SelectedItem(); selected != nil {
 			if it, ok := selected.(item); ok {
 				systemPrompt.WriteString(fmt.Sprintf(
-					"当前用户正在查看的条目：\n标题: %s\n描述: %s\n",
-					it.title, it.desc,
+					"当前用户正在查看的条目：\n标题: %s\n状态属性: %s\n详情描述: %s\n",
+					it.title, it.desc, it.fullDesc,
 				))
 			}
 		}
